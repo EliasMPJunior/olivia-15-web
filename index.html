@@ -5,158 +5,727 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Celebração dos 15 anos da Olívia.">
   <title>Olívia — 15 anos</title>
+  <style>
+    :root {
+      --bg: #120f18;
+      --surface: rgba(255, 255, 255, 0.08);
+      --surface-strong: rgba(255, 255, 255, 0.14);
+      --text: #fffaf5;
+      --muted: #d8cad8;
+      --accent: #e9b7c7;
+      --accent-strong: #c97898;
+      --gold: #e4c187;
+      --border: rgba(255, 255, 255, 0.16);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      --radius: 28px;
+      --max-width: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(201, 120, 152, 0.28), transparent 32%),
+        radial-gradient(circle at 90% 20%, rgba(228, 193, 135, 0.18), transparent 28%),
+        linear-gradient(145deg, #0f0c14 0%, #1b1320 55%, #100d15 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background-image: radial-gradient(circle, #fff 0.8px, transparent 0.8px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, #000, transparent 85%);
+    }
+
+    a { color: inherit; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max-width));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 20;
+      border-bottom: 1px solid transparent;
+      transition: 220ms ease;
+    }
+
+    .site-header.is-scrolled {
+      background: rgba(18, 15, 24, 0.84);
+      backdrop-filter: blur(18px);
+      border-color: var(--border);
+    }
+
+    .nav {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      text-decoration: none;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .menu-button {
+      display: none;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 9px 14px;
+    }
+
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      align-items: center;
+      padding: 128px 0 72px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    h1, h2, h3 { margin-top: 0; line-height: 1.08; }
+
+    h1 {
+      margin-bottom: 22px;
+      max-width: 760px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(4rem, 10vw, 8.5rem);
+      font-weight: 400;
+      letter-spacing: -0.055em;
+    }
+
+    h1 span {
+      display: block;
+      color: var(--accent);
+      font-style: italic;
+      font-size: 0.44em;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-copy {
+      max-width: 640px;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.18rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 22px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      text-decoration: none;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    .button:hover { transform: translateY(-2px); }
+    .button-primary {
+      color: #22131a;
+      background: linear-gradient(135deg, var(--accent), #f4d6df);
+      border-color: transparent;
+      font-weight: 800;
+    }
+
+    .button-secondary { background: var(--surface); }
+
+    .portrait-card {
+      position: relative;
+      min-height: 560px;
+      border-radius: 48% 48% 26px 26px;
+      overflow: hidden;
+      background:
+        linear-gradient(to top, rgba(20, 12, 20, 0.7), transparent 62%),
+        radial-gradient(circle at 50% 34%, rgba(255, 244, 237, 0.78), transparent 24%),
+        linear-gradient(150deg, #b76b88 0%, #e8b5c3 42%, #5e344e 100%);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+
+    .portrait-card::before,
+    .portrait-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.34);
+    }
+
+    .portrait-card::before { width: 220px; height: 220px; top: 70px; left: -70px; }
+    .portrait-card::after { width: 310px; height: 310px; right: -150px; bottom: -70px; }
+
+    .portrait-label {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      left: 24px;
+      padding: 18px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(16, 12, 20, 0.56);
+      backdrop-filter: blur(14px);
+    }
+
+    section { padding: 96px 0; }
+
+    .section-heading {
+      max-width: 720px;
+      margin-bottom: 44px;
+    }
+
+    .section-heading h2 {
+      margin-bottom: 16px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 6vw, 4.8rem);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+    }
+
+    .section-heading p { color: var(--muted); }
+
+    .event-panel,
+    .story-card,
+    .form-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .event-panel {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background-color: var(--border);
+    }
+
+    .event-detail {
+      min-height: 190px;
+      padding: 30px;
+      background: rgba(24, 18, 29, 0.94);
+    }
+
+    .event-detail small {
+      display: block;
+      margin-bottom: 14px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .event-detail strong {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.75rem;
+      font-weight: 400;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .countdown-item {
+      padding: 22px 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .countdown-item strong {
+      display: block;
+      font-size: clamp(1.8rem, 5vw, 3.4rem);
+      line-height: 1;
+    }
+
+    .countdown-item span { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .story-card {
+      min-height: 330px;
+      padding: 36px;
+      border-radius: var(--radius);
+    }
+
+    .story-card.featured {
+      background:
+        linear-gradient(140deg, rgba(201, 120, 152, 0.34), rgba(255, 255, 255, 0.06));
+    }
+
+    .story-card h3 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      font-weight: 400;
+    }
+
+    .story-card p { color: var(--muted); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .action-card {
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px;
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.055);
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      background: var(--surface-strong);
+    }
+
+    .action-card .number { color: var(--gold); letter-spacing: 0.18em; }
+    .action-card h3 { margin-bottom: 8px; font-family: Georgia, serif; font-size: 1.8rem; font-weight: 400; }
+    .action-card p { color: var(--muted); }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      grid-auto-rows: 220px;
+      gap: 14px;
+    }
+
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(140deg, rgba(201, 120, 152, 0.52), rgba(228, 193, 135, 0.22));
+    }
+
+    .gallery-item:first-child { grid-row: span 2; }
+    .gallery-item:nth-child(2) { background: linear-gradient(140deg, #6e405b, #c2819d); }
+    .gallery-item:nth-child(3) { background: linear-gradient(140deg, #73594a, #d7b67d); }
+    .gallery-item:nth-child(4) { background: linear-gradient(140deg, #38405b, #9a88bc); }
+    .gallery-item:nth-child(5) { background: linear-gradient(140deg, #6e314b, #d995ae); }
+
+    .gallery-item span {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      left: 14px;
+      color: rgba(255,255,255,.78);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .form-card {
+      padding: clamp(24px, 5vw, 54px);
+      border-radius: var(--radius);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .field { display: grid; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    label { color: var(--muted); font-size: 0.9rem; }
+
+    input, textarea, select {
+      width: 100%;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(233, 183, 199, 0.12);
+    }
+
+    textarea { min-height: 130px; resize: vertical; }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .status-message { color: var(--accent); }
+
+    footer {
+      padding: 44px 0 60px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 700ms ease, transform 700ms ease;
+    }
+
+    .reveal.is-visible { opacity: 1; transform: none; }
+
+    @media (max-width: 840px) {
+      .hero-grid, .story-grid { grid-template-columns: 1fr; }
+      .portrait-card { min-height: 420px; }
+      .event-panel, .cards { grid-template-columns: 1fr; }
+      .gallery { grid-template-columns: 1fr 1fr; }
+      .gallery-item:first-child { grid-row: auto; grid-column: 1 / -1; }
+      .nav-links {
+        position: absolute;
+        top: 72px;
+        right: 16px;
+        left: 16px;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: rgba(18, 15, 24, 0.96);
+      }
+      .nav-links.is-open { display: flex; }
+      .menu-button { display: inline-flex; }
+    }
+
+    @media (max-width: 560px) {
+      section { padding: 72px 0; }
+      .countdown { grid-template-columns: repeat(2, 1fr); }
+      .gallery, .form-grid { grid-template-columns: 1fr; }
+      .gallery-item:first-child { grid-column: auto; }
+      .footer-row { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <p>Uma noite para guardar para sempre</p>
-    <h1>Olívia</h1>
-    <p>15 anos</p>
-
-    <nav aria-label="Navegação principal">
-      <ul>
-        <li><a href="#inicio">Início</a></li>
-        <li><a href="#olivia">Olívia</a></li>
-        <li><a href="#festa">A festa</a></li>
-        <li><a href="#presentes">Presentes</a></li>
-        <li><a href="#recados">Recados</a></li>
-        <li><a href="#fotos">Fotos</a></li>
-        <li><a href="#confirmacao">Confirmar presença</a></li>
-      </ul>
+  <header class="site-header" id="site-header">
+    <nav class="nav container" aria-label="Navegação principal">
+      <a class="brand" href="#inicio">Olívia XV</a>
+      <button class="menu-button" id="menu-button" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#festa">A festa</a>
+        <a href="#olivia">Olívia</a>
+        <a href="#presentes">Presentes</a>
+        <a href="#fotos">Fotos</a>
+        <a href="#confirmacao">Confirmar presença</a>
+      </div>
     </nav>
   </header>
 
   <main>
-    <section id="inicio" aria-labelledby="titulo-convite">
-      <h2 id="titulo-convite">Você faz parte desta história</h2>
-      <p>
-        Estamos preparando uma celebração muito especial para os 15 anos da Olívia
-        e queremos dividir esse momento com pessoas queridas.
-      </p>
-
-      <dl>
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
         <div>
-          <dt>Data</dt>
-          <dd>A definir</dd>
+          <p class="eyebrow">Uma noite para guardar</p>
+          <h1>Olívia <span>15 anos</span></h1>
+          <p class="hero-copy">Você faz parte desta história. Venha celebrar uma noite especial, cheia de afeto, música e memórias que estão apenas começando.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#confirmacao">Confirmar presença</a>
+            <a class="button button-secondary" href="#festa">Ver detalhes</a>
+          </div>
         </div>
-        <div>
-          <dt>Horário</dt>
-          <dd>A definir</dd>
+        <div class="portrait-card" role="img" aria-label="Espaço reservado para uma foto da Olívia">
+          <div class="portrait-label">Foto principal da Olívia</div>
         </div>
-        <div>
-          <dt>Local</dt>
-          <dd>A definir</dd>
+      </div>
+    </section>
+
+    <section id="festa">
+      <div class="container reveal">
+        <div class="section-heading">
+          <p class="eyebrow">Reserve a data</p>
+          <h2>Uma celebração feita para ela.</h2>
+          <p>Os dados definitivos entram aqui quando a Patrícia escolher data, horário, local e identidade visual.</p>
         </div>
-      </dl>
 
-      <p><a href="#confirmacao">Confirmar presença</a></p>
+        <div class="event-panel">
+          <div class="event-detail"><small>Data</small><strong>A definir</strong><p>Segundo semestre de 2026</p></div>
+          <div class="event-detail"><small>Horário</small><strong>A definir</strong><p>Recepção e cerimônia</p></div>
+          <div class="event-detail"><small>Local</small><strong>A definir</strong><p>Endereço e rota em breve</p></div>
+        </div>
+
+        <div class="countdown" aria-label="Contagem regressiva">
+          <div class="countdown-item"><strong id="days">--</strong><span>Dias</span></div>
+          <div class="countdown-item"><strong id="hours">--</strong><span>Horas</span></div>
+          <div class="countdown-item"><strong id="minutes">--</strong><span>Minutos</span></div>
+          <div class="countdown-item"><strong id="seconds">--</strong><span>Segundos</span></div>
+        </div>
+      </div>
     </section>
 
-    <section id="contagem" aria-labelledby="titulo-contagem">
-      <h2 id="titulo-contagem">Contagem regressiva</h2>
-      <p>A contagem será exibida quando a data estiver definida.</p>
+    <section id="olivia">
+      <div class="container reveal">
+        <div class="section-heading">
+          <p class="eyebrow">A aniversariante</p>
+          <h2>Quinze anos de Olívia.</h2>
+        </div>
+        <div class="story-grid">
+          <article class="story-card featured">
+            <h3>Sobre ela</h3>
+            <p>Este espaço receberá um texto pessoal sobre a Olívia: o jeito dela, as histórias que a família ama contar e o que torna esse momento tão especial.</p>
+          </article>
+          <article class="story-card">
+            <h3>O convite</h3>
+            <p>Mais do que uma festa, este será um encontro com as pessoas que fizeram parte da vida dela até aqui — e que queremos conosco nos próximos capítulos.</p>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <section id="olivia" aria-labelledby="titulo-olivia">
-      <h2 id="titulo-olivia">Olívia, 15 anos</h2>
-      <p>
-        Este espaço contará um pouco da história da Olívia, das coisas que ela ama
-        e do que torna essa celebração tão especial.
-      </p>
+    <section id="presentes">
+      <div class="container reveal">
+        <div class="section-heading">
+          <p class="eyebrow">Participe</p>
+          <h2>Tudo em um só lugar.</h2>
+          <p>Por enquanto, as ações funcionam como protótipo. Depois serão conectadas ao gateway e à dBriefcase do evento.</p>
+        </div>
+        <div class="cards">
+          <a class="action-card" href="#confirmacao"><span class="number">01</span><div><h3>Confirmar presença</h3><p>Informe quem vem e deixe um contato para as atualizações.</p></div></a>
+          <a class="action-card" href="#presentes"><span class="number">02</span><div><h3>Lista de presentes</h3><p>Presentes, experiências ou contribuições poderão aparecer aqui.</p></div></a>
+          <a class="action-card" href="#recados"><span class="number">03</span><div><h3>Deixar um recado</h3><p>Escreva uma mensagem para a Olívia guardar depois da festa.</p></div></a>
+        </div>
+      </div>
     </section>
 
-    <section id="festa" aria-labelledby="titulo-festa">
-      <h2 id="titulo-festa">A festa</h2>
-      <p>Em breve, todas as informações para você aproveitar a noite.</p>
-
-      <article>
-        <h3>Programação</h3>
-        <p>A definir.</p>
-      </article>
-
-      <article>
-        <h3>Como chegar</h3>
-        <address>Local a definir.</address>
-      </article>
-
-      <article>
-        <h3>Traje</h3>
-        <p>A definir.</p>
-      </article>
+    <section id="fotos">
+      <div class="container reveal">
+        <div class="section-heading">
+          <p class="eyebrow">Memórias</p>
+          <h2>Um álbum que cresce com a festa.</h2>
+          <p>Os blocos abaixo serão substituídos pelas fotos escolhidas pela família e, depois, pelo álbum coletivo.</p>
+        </div>
+        <div class="gallery">
+          <div class="gallery-item"><span>Foto de destaque</span></div>
+          <div class="gallery-item"><span>Infância</span></div>
+          <div class="gallery-item"><span>Família</span></div>
+          <div class="gallery-item"><span>Amigos</span></div>
+          <div class="gallery-item"><span>Preparativos</span></div>
+        </div>
+      </div>
     </section>
 
-    <section id="presentes" aria-labelledby="titulo-presentes">
-      <h2 id="titulo-presentes">Presentes</h2>
-      <p>
-        Sua presença é o mais importante. Caso queira presentear a Olívia,
-        as opções serão publicadas aqui.
-      </p>
-    </section>
+    <section id="confirmacao">
+      <div class="container reveal">
+        <div class="section-heading">
+          <p class="eyebrow">RSVP</p>
+          <h2>Confirme sua presença.</h2>
+          <p>Este formulário já demonstra o fluxo, mas ainda salva apenas no navegador do convidado.</p>
+        </div>
 
-    <section id="recados" aria-labelledby="titulo-recados">
-      <h2 id="titulo-recados">Recados para a Olívia</h2>
-      <p>Em breve você poderá deixar uma mensagem para ela.</p>
-
-      <form>
-        <p>
-          <label for="nome-recado">Seu nome</label><br>
-          <input id="nome-recado" name="nome" type="text" autocomplete="name">
-        </p>
-
-        <p>
-          <label for="mensagem-recado">Sua mensagem</label><br>
-          <textarea id="mensagem-recado" name="mensagem" rows="6"></textarea>
-        </p>
-
-        <button type="submit" disabled>Enviar recado em breve</button>
-      </form>
-    </section>
-
-    <section id="fotos" aria-labelledby="titulo-fotos">
-      <h2 id="titulo-fotos">Fotos</h2>
-      <p>As lembranças e os registros da celebração serão reunidos aqui.</p>
-    </section>
-
-    <section id="confirmacao" aria-labelledby="titulo-confirmacao">
-      <h2 id="titulo-confirmacao">Confirmação de presença</h2>
-      <p>Confirme sua presença e informe quem acompanhará você.</p>
-
-      <form>
-        <fieldset>
-          <legend>Dados do convite</legend>
-
-          <p>
-            <label for="nome-convidado">Nome</label><br>
-            <input id="nome-convidado" name="nome" type="text" autocomplete="name" required>
-          </p>
-
-          <p>
-            <label for="telefone-convidado">Telefone</label><br>
-            <input id="telefone-convidado" name="telefone" type="tel" autocomplete="tel">
-          </p>
-
-          <p>
-            <label for="presenca">Você poderá participar?</label><br>
-            <select id="presenca" name="presenca" required>
-              <option value="">Selecione</option>
-              <option value="sim">Sim, estarei presente</option>
-              <option value="nao">Não poderei participar</option>
-            </select>
-          </p>
-
-          <p>
-            <label for="acompanhantes">Acompanhantes</label><br>
-            <textarea id="acompanhantes" name="acompanhantes" rows="4"></textarea>
-          </p>
-        </fieldset>
-
-        <button type="submit" disabled>Enviar confirmação em breve</button>
-      </form>
+        <form class="form-card" id="rsvp-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Nome</label>
+              <input id="name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="phone">Telefone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" required>
+            </div>
+            <div class="field">
+              <label for="attendance">Você poderá participar?</label>
+              <select id="attendance" name="attendance" required>
+                <option value="">Selecione</option>
+                <option value="yes">Sim, estarei lá</option>
+                <option value="no">Infelizmente não poderei ir</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="guests">Quantidade de pessoas</label>
+              <input id="guests" name="guests" type="number" min="1" max="10" value="1">
+            </div>
+            <div class="field full" id="recados">
+              <label for="message">Recado para a Olívia</label>
+              <textarea id="message" name="message" placeholder="Escreva algo especial..."></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="button button-primary" type="submit">Enviar confirmação</button>
+            <span class="status-message" id="form-status" role="status" aria-live="polite"></span>
+          </div>
+        </form>
+      </div>
     </section>
   </main>
 
   <footer>
-    <p>Olívia — 15 anos</p>
-    <p>Feito com carinho para uma noite inesquecível.</p>
+    <div class="container footer-row">
+      <strong>Olívia — 15 anos</strong>
+      <span>Primeira versão da experiência do evento.</span>
+    </div>
   </footer>
+
+  <script>
+    const EVENT_DATE = null; // Exemplo futuro: "2026-12-05T20:00:00-03:00"
+
+    const header = document.querySelector('#site-header');
+    const menuButton = document.querySelector('#menu-button');
+    const navLinks = document.querySelector('#nav-links');
+    const rsvpForm = document.querySelector('#rsvp-form');
+    const formStatus = document.querySelector('#form-status');
+
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 24);
+    }, { passive: true });
+
+    menuButton.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('is-open');
+      menuButton.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    navLinks.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('is-open');
+        menuButton.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll('.reveal').forEach((element) => revealObserver.observe(element));
+
+    function renderCountdown() {
+      const fields = {
+        days: document.querySelector('#days'),
+        hours: document.querySelector('#hours'),
+        minutes: document.querySelector('#minutes'),
+        seconds: document.querySelector('#seconds')
+      };
+
+      if (!EVENT_DATE) {
+        Object.values(fields).forEach((field) => field.textContent = '--');
+        return;
+      }
+
+      const distance = new Date(EVENT_DATE).getTime() - Date.now();
+      if (distance <= 0) {
+        Object.values(fields).forEach((field) => field.textContent = '00');
+        return;
+      }
+
+      fields.days.textContent = String(Math.floor(distance / 86400000)).padStart(2, '0');
+      fields.hours.textContent = String(Math.floor((distance % 86400000) / 3600000)).padStart(2, '0');
+      fields.minutes.textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');
+      fields.seconds.textContent = String(Math.floor((distance % 60000) / 1000)).padStart(2, '0');
+    }
+
+    renderCountdown();
+    setInterval(renderCountdown, 1000);
+
+    rsvpForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(rsvpForm));
+      localStorage.setItem('olivia-15-rsvp-draft', JSON.stringify(data));
+      formStatus.textContent = 'Confirmação registrada neste dispositivo.';
+    });
+
+    const savedDraft = localStorage.getItem('olivia-15-rsvp-draft');
+    if (savedDraft) {
+      try {
+        const data = JSON.parse(savedDraft);
+        Object.entries(data).forEach(([name, value]) => {
+          const field = rsvpForm.elements.namedItem(name);
+          if (field) field.value = value;
+        });
+      } catch {
+        localStorage.removeItem('olivia-15-rsvp-draft');
+      }
+    }
+  </script>
 </body>
 </html>
