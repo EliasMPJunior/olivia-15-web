@@ -3,35 +3,160 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Celebração dos 15 anos da Olívia.">
   <title>Olívia — 15 anos</title>
 </head>
 <body>
   <header>
-    <h1>Olívia — 15 anos</h1>
-    <p>Uma noite para celebrar.</p>
+    <p>Uma noite para guardar para sempre</p>
+    <h1>Olívia</h1>
+    <p>15 anos</p>
+
+    <nav aria-label="Navegação principal">
+      <ul>
+        <li><a href="#inicio">Início</a></li>
+        <li><a href="#olivia">Olívia</a></li>
+        <li><a href="#festa">A festa</a></li>
+        <li><a href="#presentes">Presentes</a></li>
+        <li><a href="#recados">Recados</a></li>
+        <li><a href="#fotos">Fotos</a></li>
+        <li><a href="#confirmacao">Confirmar presença</a></li>
+      </ul>
+    </nav>
   </header>
 
   <main>
-    <section id="convite">
-      <h2>Convite</h2>
-      <p>Você é nosso convidado para comemorar os 15 anos da Olívia.</p>
+    <section id="inicio" aria-labelledby="titulo-convite">
+      <h2 id="titulo-convite">Você faz parte desta história</h2>
+      <p>
+        Estamos preparando uma celebração muito especial para os 15 anos da Olívia
+        e queremos dividir esse momento com pessoas queridas.
+      </p>
+
+      <dl>
+        <div>
+          <dt>Data</dt>
+          <dd>A definir</dd>
+        </div>
+        <div>
+          <dt>Horário</dt>
+          <dd>A definir</dd>
+        </div>
+        <div>
+          <dt>Local</dt>
+          <dd>A definir</dd>
+        </div>
+      </dl>
+
+      <p><a href="#confirmacao">Confirmar presença</a></p>
     </section>
 
-    <section id="data-e-local">
-      <h2>Data e local</h2>
-      <p>Data: a definir</p>
-      <p>Horário: a definir</p>
-      <p>Local: a definir</p>
+    <section id="contagem" aria-labelledby="titulo-contagem">
+      <h2 id="titulo-contagem">Contagem regressiva</h2>
+      <p>A contagem será exibida quando a data estiver definida.</p>
     </section>
 
-    <section id="confirmacao">
-      <h2>Confirmação de presença</h2>
-      <p>As informações para confirmação serão adicionadas em breve.</p>
+    <section id="olivia" aria-labelledby="titulo-olivia">
+      <h2 id="titulo-olivia">Olívia, 15 anos</h2>
+      <p>
+        Este espaço contará um pouco da história da Olívia, das coisas que ela ama
+        e do que torna essa celebração tão especial.
+      </p>
+    </section>
+
+    <section id="festa" aria-labelledby="titulo-festa">
+      <h2 id="titulo-festa">A festa</h2>
+      <p>Em breve, todas as informações para você aproveitar a noite.</p>
+
+      <article>
+        <h3>Programação</h3>
+        <p>A definir.</p>
+      </article>
+
+      <article>
+        <h3>Como chegar</h3>
+        <address>Local a definir.</address>
+      </article>
+
+      <article>
+        <h3>Traje</h3>
+        <p>A definir.</p>
+      </article>
+    </section>
+
+    <section id="presentes" aria-labelledby="titulo-presentes">
+      <h2 id="titulo-presentes">Presentes</h2>
+      <p>
+        Sua presença é o mais importante. Caso queira presentear a Olívia,
+        as opções serão publicadas aqui.
+      </p>
+    </section>
+
+    <section id="recados" aria-labelledby="titulo-recados">
+      <h2 id="titulo-recados">Recados para a Olívia</h2>
+      <p>Em breve você poderá deixar uma mensagem para ela.</p>
+
+      <form>
+        <p>
+          <label for="nome-recado">Seu nome</label><br>
+          <input id="nome-recado" name="nome" type="text" autocomplete="name">
+        </p>
+
+        <p>
+          <label for="mensagem-recado">Sua mensagem</label><br>
+          <textarea id="mensagem-recado" name="mensagem" rows="6"></textarea>
+        </p>
+
+        <button type="submit" disabled>Enviar recado em breve</button>
+      </form>
+    </section>
+
+    <section id="fotos" aria-labelledby="titulo-fotos">
+      <h2 id="titulo-fotos">Fotos</h2>
+      <p>As lembranças e os registros da celebração serão reunidos aqui.</p>
+    </section>
+
+    <section id="confirmacao" aria-labelledby="titulo-confirmacao">
+      <h2 id="titulo-confirmacao">Confirmação de presença</h2>
+      <p>Confirme sua presença e informe quem acompanhará você.</p>
+
+      <form>
+        <fieldset>
+          <legend>Dados do convite</legend>
+
+          <p>
+            <label for="nome-convidado">Nome</label><br>
+            <input id="nome-convidado" name="nome" type="text" autocomplete="name" required>
+          </p>
+
+          <p>
+            <label for="telefone-convidado">Telefone</label><br>
+            <input id="telefone-convidado" name="telefone" type="tel" autocomplete="tel">
+          </p>
+
+          <p>
+            <label for="presenca">Você poderá participar?</label><br>
+            <select id="presenca" name="presenca" required>
+              <option value="">Selecione</option>
+              <option value="sim">Sim, estarei presente</option>
+              <option value="nao">Não poderei participar</option>
+            </select>
+          </p>
+
+          <p>
+            <label for="acompanhantes">Acompanhantes</label><br>
+            <textarea id="acompanhantes" name="acompanhantes" rows="4"></textarea>
+          </p>
+        </fieldset>
+
+        <button type="submit" disabled>Enviar confirmação em breve</button>
+      </form>
     </section>
   </main>
 
   <footer>
     <p>Olívia — 15 anos</p>
+    <p>Feito com carinho para uma noite inesquecível.</p>
   </footer>
 </body>
 </html>
