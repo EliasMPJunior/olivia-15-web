@@ -201,6 +201,17 @@ class PortalTests(TestCase):
         self.alice.refresh_from_db()
         self.assertEqual(self.alice.phone, '24999993333')
 
+    def test_numeric_password_is_accepted_on_password_change(self):
+        self.login()
+        response = self.client.post(reverse('admin:password_change'), {
+            'old_password': PASSWORD,
+            'new_password1': '20268473',
+            'new_password2': '20268473',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.alice.refresh_from_db()
+        self.assertTrue(self.alice.check_password('20268473'))
+
     def test_password_change_and_post_only_logout(self):
         self.login()
         self.assertEqual(self.client.get(reverse('admin:password_change')).status_code, 200)
