@@ -9,10 +9,10 @@ services:
       - "8000"
     hostname: olivia
     ports:
-      - "127.0.0.1:${OLIVIA_PORT:-8001}:8000"
+      - "0.0.0.0:${OLIVIA_PORT:-8001}:8000"
     environment:
       DJANGO_DEBUG: "1"
-      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,[::1]"
+      DJANGO_ALLOWED_HOSTS: "localhost,0.0.0.0,[::1]"
       DJANGO_DB_PATH: /data/db.sqlite3
       DJANGO_ADMIN_PHONE: "${DJANGO_ADMIN_PHONE:-}"
       DJANGO_ADMIN_PASSWORD: "${DJANGO_ADMIN_PASSWORD:-}"
@@ -21,8 +21,10 @@ services:
       - ../src:/app
       - olivia_data:/data
     restart: unless-stopped
+    networks:
+      - brasidata
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/api/health/')"]
       interval: 5s
       timeout: 3s
       retries: 20
