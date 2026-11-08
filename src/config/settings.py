@@ -4,8 +4,12 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.getenv('DJANGO_DEBUG', '0') == '1'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'local-development-only' if DEBUG else '')
+if not SECRET_KEY and not DEBUG:
+    secret_file = os.getenv('DJANGO_SECRET_KEY_FILE')
+    if secret_file and Path(secret_file).is_file():
+        SECRET_KEY = Path(secret_file).read_text(encoding='utf-8').strip()
 if not SECRET_KEY:
-    raise RuntimeError('Defina DJANGO_SECRET_KEY para executar em produção.')
+    raise RuntimeError('Defina DJANGO_SECRET_KEY ou inicialize o arquivo DJANGO_SECRET_KEY_FILE para executar em produção.')
 ALLOWED_HOSTS = [value.strip() for value in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]').split(',') if value.strip()]
 CSRF_TRUSTED_ORIGINS = [value.strip() for value in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if value.strip()]
 INSTALLED_APPS = [

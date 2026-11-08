@@ -20,6 +20,11 @@ if [ "$#" -gt 1 ]; then
 fi
 
 export OLIVIA_PORT="${OLIVIA_PORT:-8001}"
+if [ "$compose_file" = "docker/docker-compose.prod.yml" ]; then
+  if ! docker network inspect brasidata >/dev/null 2>&1; then
+    docker network create brasidata >/dev/null
+  fi
+fi
 if [ -f .env ]; then
   docker compose --env-file .env --file "$compose_file" up -d --build --wait
 else

@@ -63,33 +63,33 @@ O SQLite local fica em `src/db.sqlite3` e é independente do banco do Docker.
 
 Django não executa no GitHub Pages. Publique este servidor em um host com Docker e HTTPS, mantendo o convite estático no domínio atual. O botão de confirmação do convite pode depois apontar para a URL deste servidor; este trabalho não altera o site em produção.
 
-Copie `.env.example` para `.env` e defina uma chave aleatória, o domínio e a origem HTTPS. Exemplo de geração de chave:
+O Compose de produção já inclui `olivia.brasidata.app.br` nos hosts e a origem HTTPS nas origens CSRF. Para configurações adicionais, copie `.env.example` para `.env`. A chave secreta é gerada automaticamente no primeiro início e persistida em `/data/django_secret_key`; se preferir fornecer uma chave externa, defina `DJANGO_SECRET_KEY`. Exemplo de geração de chave:
 
 ```sh
 .venv/bin/python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 ```
 
-Inicie explicitamente com o arquivo de produção:
+A rede `brasidata` é criada pelo script se ainda não existir e deve ser compartilhada com o proxy. Inicie em produção com:
 
 ```sh
-docker compose --env-file .env -f docker/docker-compose.prod.yml up -d --build --wait
+./up.sh --prod
 ```
 
-Configure um proxy HTTPS para `127.0.0.1:8001`, passando `Host`, definindo `X-Forwarded-Proto: https` e sobrescrevendo `X-Forwarded-For` com o IP real do visitante. A porta da aplicação só é publicada em loopback. O proxy deve sobrescrever esses cabeçalhos recebidos do visitante. O IP encaminhado é usado nos limites de tentativas, evitando que todos os visitantes compartilhem o limite do proxy. `DJANGO_TRUST_PROXY=1` habilita a confiança nesse cabeçalho. `DJANGO_HEALTH_HOST` precisa corresponder a um dos `DJANGO_ALLOWED_HOSTS`.
+Configure um proxy HTTPS para `127.0.0.1:8001`, passando `Host`, definindo `X-Forwarded-Proto: https` e sobrescrevendo `X-Forwarded-For` com o IP real do visitante. A porta da aplicação só é publicada em loopback. O proxy deve sobrescrever esses cabeçalhos recebidos do visitante. O IP encaminhado é usado nos limites de tentativas, evitando que todos os visitantes compartilhem o limite do proxy. `DJANGO_TRUST_PROXY=1` habilita a confiança nesse cabeçalho. O healthcheck usa HTTP na porta interna `8000`, com o domínio e o protocolo encaminhado corretos. O proxy deve encaminhar para `olivia:8000` na rede `brasidata`.
 
-O container de produção executa como usuário sem privilégios, aplica migrações, garante a conta administrativa inicial, coleta estáticos e inicia Gunicorn com um worker e quatro threads. WhiteNoise entrega os estáticos com hash e compressão. O banco persiste no mesmo volume nomeado. HTTPS, cookies seguros e proteção CSRF ficam habilitados em produção. HSTS se aplica apenas ao domínio servido, sem impor regras aos demais subdomínios.
+O container de produção executa como usuário sem privilégios, aplica migrações, garante a conta administrativa inicial, coleta estáticos e inicia Gunicorn com um worker e quatro threads. WhiteNoise entrega os estáticos com hash e compressão. O banco e a chave secreta persistem no mesmo volume nomeado. O código é executado a partir da imagem, sem bind mount de desenvolvimento; alterações exigem rebuild, já feito pelo `up.sh`. HTTPS, cookies seguros e proteção CSRF ficam habilitados em produção. HSTS se aplica apenas ao domínio servido, sem impor regras aos demais subdomínios.
 
 Variáveis principais:
 
 | Variável | Finalidade |
 |---|---|
 | `DJANGO_DEBUG` | `1` apenas no desenvolvimento |
-| `DJANGO_SECRET_KEY` | Obrigatória em produção |
-| `DJANGO_ALLOWED_HOSTS` | Domínios permitidos, separados por vírgula |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | Origens HTTPS autorizadas |
+| `DJANGO_SECRET_KEY` | Opcional no Docker: substitui a chave persistida no volume |
+| `DJANGO_SECRET_KEY_FILE` | Arquivo da chave gerada automaticamente, `/data/django_secret_key` |
+| `DJANGO_ALLOWED_HOSTS` | Hosts adicionais; domínio público e hosts internos já estão incluídos no Compose de produção |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | Origens adicionais; `https://olivia.brasidata.app.br` já está incluída |
 | `DJANGO_DB_PATH` | Caminho do SQLite; no container, `/data/db.sqlite3` |
 | `DJANGO_TRUST_PROXY` | Confia no protocolo e no IP definidos pelo proxy controlado |
-| `DJANGO_HEALTH_HOST` | Host usado na verificação do container em produção |
 | `OLIVIA_PORT` | Porta local publicada, padrão `8001` |
 | `INVITATION_URL` | Retorno ao menu estático, padrão `https://olivia.brasidata.com.br/menu.html` |
 
@@ -104,7 +104,7 @@ docker compose -f docker/docker-compose.yml exec olivia python -c 'import sqlite
 docker compose -f docker/docker-compose.yml cp olivia:/data/backup.sqlite3 ./backup.sqlite3
 ```
 
-Esse arquivo contém dados pessoais e não deve ser versionado.
+Esse arquivo contém dados pessoais e não deve ser versionado. Preserve também `/data/django_secret_key` ao migrar o servidor.
 
 ## Verificação
 

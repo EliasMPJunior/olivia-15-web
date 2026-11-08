@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 set -eu
+python ensure_secret_key.py
 python manage.py migrate --noinput
 python ensure_superuser.py
 python manage.py collectstatic --noinput

@@ -5,29 +5,34 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: olivia
+    hostname: olivia
     expose:
       - "8000"
-    hostname: olivia
     ports:
-      - "0.0.0.0:${OLIVIA_PORT:-8001}:8000"
+      - "127.0.0.1:${OLIVIA_PORT:-8001}:8000"
     environment:
-      DJANGO_DEBUG: "1"
-      DJANGO_ALLOWED_HOSTS: "localhost,0.0.0.0,[::1]"
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-}"
+      DJANGO_SECRET_KEY_FILE: /data/django_secret_key
+      DJANGO_ALLOWED_HOSTS: "olivia.brasidata.app.br,localhost,127.0.0.1,[::1],olivia,${DJANGO_ALLOWED_HOSTS:-}"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "https://olivia.brasidata.app.br,${DJANGO_CSRF_TRUSTED_ORIGINS:-}"
+      DJANGO_TRUST_PROXY: "1"
+      DJANGO_SSL_REDIRECT: "1"
       DJANGO_DB_PATH: /data/db.sqlite3
       DJANGO_ADMIN_PHONE: "${DJANGO_ADMIN_PHONE:-}"
       DJANGO_ADMIN_PASSWORD: "${DJANGO_ADMIN_PASSWORD:-}"
       DJANGO_ADMIN_NAME: "${DJANGO_ADMIN_NAME:-Administrador}"
+      INVITATION_URL: "${INVITATION_URL:-https://olivia.brasidata.com.br/menu.html}"
     volumes:
-      - ../src:/app
       - olivia_data:/data
     restart: unless-stopped
     networks:
       - brasidata
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/api/health/')"]
-      interval: 5s
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.Request('http://127.0.0.1:8000/api/health/', headers={'Host':'olivia.brasidata.app.br','X-Forwarded-Proto':'https'}); urllib.request.urlopen(r)"]
+      interval: 10s
       timeout: 3s
-      retries: 20
+      retries: 10
       start_period: 30s
 
 volumes:
