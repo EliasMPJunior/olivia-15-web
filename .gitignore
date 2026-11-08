@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Django runtime data
+src/db.sqlite3*
+src/staticfiles/
+.coverage
+backup.sqlite3*

@@ -1,0 +1,28 @@
+name: olivia15
+services:
+  olivia:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: olivia
+    ports:
+      - "127.0.0.1:${OLIVIA_PORT:-8001}:8000"
+    environment:
+      DJANGO_DEBUG: "1"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,[::1]"
+      DJANGO_DB_PATH: /data/db.sqlite3
+      DJANGO_ADMIN_PHONE: "${DJANGO_ADMIN_PHONE:-}"
+      DJANGO_ADMIN_PASSWORD: "${DJANGO_ADMIN_PASSWORD:-}"
+      DJANGO_ADMIN_NAME: "${DJANGO_ADMIN_NAME:-Administrador}"
+    volumes:
+      - ../src:/app
+      - olivia_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+volumes:
+  olivia_data:

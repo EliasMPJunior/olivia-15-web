@@ -1,0 +1,9 @@
+.git
+.venv
+legacy
+.env
+.env.*
+**/__pycache__
+**/db.sqlite3*
+src/staticfiles
+output
