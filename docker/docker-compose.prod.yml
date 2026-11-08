@@ -24,7 +24,8 @@ services:
       DJANGO_ADMIN_NAME: "${DJANGO_ADMIN_NAME:-Administrador}"
       INVITATION_URL: "${INVITATION_URL:-https://olivia.brasidata.com.br/menu.html}"
     volumes:
-      - olivia_data:/data
+      - ../src:/app
+      - ../data:/data
     restart: unless-stopped
     networks:
       - brasidata
@@ -34,9 +35,6 @@ services:
       timeout: 3s
       retries: 10
       start_period: 30s
-
-volumes:
-  olivia_data:
 
 networks:
   brasidata:
