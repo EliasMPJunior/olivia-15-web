@@ -5,6 +5,9 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     container_name: olivia
+    expose:
+      - "8000"
+    hostname: olivia
     ports:
       - "127.0.0.1:${OLIVIA_PORT:-8001}:8000"
     environment:
