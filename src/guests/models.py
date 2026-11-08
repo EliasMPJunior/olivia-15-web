@@ -7,7 +7,7 @@ from django.conf import settings
 
 
 def normalize_phone(value):
-    """Accept Brazilian local numbers or an explicit international + prefix."""
+    """Store Brazilian phones with DDD only; retain other country prefixes."""
     value = str(value or '').strip()
     if not value or re.search(r'[^\d\s()+.\-]', value):
         raise ValidationError('Informe um telefone válido com DDD.')
@@ -15,14 +15,21 @@ def normalize_phone(value):
     if value.startswith('+'):
         if not 10 <= len(digits) <= 15 or digits.startswith('0'):
             raise ValidationError('Informe um telefone válido com código do país.')
+        if digits.startswith('55') and len(digits) in (12, 13):
+            return digits[2:]
         return '+' + digits
     if len(digits) in (10, 11):
         if digits[0] == '0' or len(set(digits)) == 1:
             raise ValidationError('Informe um telefone válido com DDD.')
-        return '+55' + digits
+        return digits
     if len(digits) in (12, 13) and digits.startswith('55'):
-        return '+' + digits
+        return digits[2:]
     raise ValidationError('Informe um telefone com DDD, como (24) 99999-9999.')
+
+
+def phone_variants(value):
+    phone = normalize_phone(value)
+    return (phone,) if phone.startswith('+') else (phone, '+55' + phone)
 
 
 class Attendance(models.TextChoices):
@@ -33,6 +40,12 @@ class Attendance(models.TextChoices):
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
+
+    def get_by_natural_key(self, phone):
+        try:
+            return self.get(phone__in=phone_variants(phone))
+        except (self.model.MultipleObjectsReturned, ValidationError) as exc:
+            raise self.model.DoesNotExist from exc
 
     def create_user(self, phone, password=None, **extra_fields):
         if not phone:

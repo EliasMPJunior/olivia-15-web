@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from guests.models import Family, Guest, User, normalize_phone
+from guests.models import Family, Guest, User, normalize_phone, phone_variants
 
 
 FIELDS = {'tratamento', 'nome', 'sobrenome', 'telefone'}
@@ -103,7 +103,10 @@ class Command(BaseCommand):
             raise ValueError(f'Principal sem telefone: {principal_name}. Preencha o JSON e execute novamente.')
         phone = normalize_phone(raw_phone)
         people = [validate_person(person) for person in group['guests']]
-        user = User.objects.filter(phone=phone).first()
+        matches = list(User.objects.filter(phone__in=phone_variants(phone))[:2])
+        if len(matches) > 1:
+            raise ValueError('Há contas duplicadas para o telefone do principal; revise os cadastros antes de importar.')
+        user = matches[0] if matches else None
         if user is None:
             # No shared/default password and no elevation of administrative access.
             user = User.objects.create_user(phone=phone, first_name=principal_name, password=None)

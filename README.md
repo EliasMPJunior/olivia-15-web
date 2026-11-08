@@ -50,7 +50,7 @@ O SQLite local fica em `src/db.sqlite3` e é independente do banco do Docker.
 
 - Cadastro de acesso com nome, telefone com DDD, senha e confirmação. Ele exige um responsável ativo previamente cadastrado pela organização ou pela importação. Nome e telefone devem corresponder à mesma conta; caso contrário, retorna “Pessoa não cadastrada”. Não cria contas ou famílias novas.
 - Conforme definido, **informar o telefone é suficiente**: não há SMS, WhatsApp, código ou verificação de posse. O sistema não apresenta o telefone como verificado.
-- O login usa telefone e senha. Números brasileiros com ou sem formatação são normalizados com `+55`; números internacionais devem começar com `+`.
+- O login usa telefone e senha. Números brasileiros com ou sem formatação são normalizados apenas com DDD, sem `+55`; números internacionais devem começar com `+`.
 - Cada conta pertence a um responsável da família. A model `Family` é criada automaticamente para esse responsável; a model `Guest` contém os familiares, sem telefone, senha ou conta. Cada responsável tem sua própria resposta de presença e a lista da sua família. Cada pessoa pode estar pendente, confirmada ou não comparecer. As respostas podem ser alteradas.
 - A lista, pesquisas, formulários, histórico, exclusão e ações em lote são filtrados pelo responsável. Saber o UUID de outro convidado não permite consultá-lo ou modificá-lo.
 - Os convidados são registros da lista, não novas contas; cadastrar alguém não envia convites nem cria senhas. Apenas o superusuário inclui, edita ou remove esses registros. O responsável consulta sua família e altera somente as respostas de presença.
@@ -155,3 +155,27 @@ Reexecutar a importação não duplica os registros: responsáveis são identifi
 Principais sem telefone ou com telefone inválido ficam pendentes; corrija o JSON e execute novamente. Nenhum telefone é inventado. As novas contas são criadas **sem senha utilizável**, sem privilégios administrativos e com presença pendente. O responsável pode acessar `/cadastro/`, informar o nome e telefone cadastrados e definir sua senha. Também é possível ao superusuário definir a senha pelo Admin. O script não envia mensagens ou códigos.
 
 O cadastro de acesso também permite substituir uma senha já definida, usando a mesma conferência de nome e telefone. A comparação do nome ignora diferenças de maiúsculas, acentos, espaços e tratamentos familiares iniciais (como Tia ou Vó), mas exige o restante do nome completo. Apenas a senha é atualizada: família, telefone, nome, presenças e permissões são preservados. Contas administrativas ou inativas não podem usar esse fluxo público.
+
+Na criação de um novo responsável pelo Admin, o superusuário informa apenas nome e telefone. A senha inicial é gerada como `2026` + os quatro últimos dígitos do telefone normalizado (exemplo: final `5555` → `20265555`) e armazenada pelo hash de senha do Django. Editar o responsável ou alterar seu telefone não redefine a senha automaticamente.
+
+## Redefinir senhas das contas comuns
+
+Para aplicar `2026` + os últimos quatro dígitos do telefone a todos os responsáveis que não são staff nem superusuários:
+
+```sh
+docker compose -f docker/docker-compose.prod.yml exec olivia python redefinir_senhas.py --dry-run
+docker compose -f docker/docker-compose.prod.yml exec olivia python redefinir_senhas.py
+```
+
+O mesmo comando está disponível como `python manage.py redefinir_senhas`. Também inclui contas inativas, sem reativá-las. Preserva as senhas administrativas, famílias e presenças; não grava senhas em texto puro. Se já estiver no padrão, mantém o hash existente. Telefones inválidos interrompem e desfazem toda a operação. Alterar a senha invalida as sessões anteriores da conta no próximo acesso.
+
+## Remover o prefixo brasileiro dos telefones existentes
+
+```sh
+docker compose -f docker/docker-compose.prod.yml exec olivia python remover_prefixo_55.py --dry-run
+docker compose -f docker/docker-compose.prod.yml exec olivia python remover_prefixo_55.py
+```
+
+Também disponível como `python manage.py remover_prefixo_55`. Inclui administradores, responsáveis e convidados. Remove apenas o prefixo `+55` inicial, preservando outros códigos de país. Se houver colisão entre telefones únicos de responsáveis, a operação é interrompida e nenhuma alteração é gravada. Senhas, presenças e famílias são preservadas.
+
+O login, a ativação, o cadastro administrativo e a importação reconhecem tanto o formato antigo quanto o formato sem prefixo durante a transição. Novos telefones brasileiros são salvos sem `+55`, e o prefixo não é recolocado ao editar a conta.

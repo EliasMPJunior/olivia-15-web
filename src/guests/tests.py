@@ -163,22 +163,28 @@ class PortalTests(TestCase):
 
     def test_superuser_can_create_accounts(self):
         self.login(self.organizer)
-        r = self.client.post(reverse('admin:guests_user_add'), {'first_name': 'Conta criada pela organização', 'phone': '24999995555', 'password1': PASSWORD, 'password2': PASSWORD, '_save': 'Salvar'})
+        response = self.client.get(reverse('admin:guests_user_add'))
+        self.assertNotContains(response, 'name="password1"')
+        self.assertNotContains(response, 'name="password2"')
+        r = self.client.post(reverse('admin:guests_user_add'), {'first_name': 'Conta criada pela organização', 'phone': '(24) 99999-5555', '_save': 'Salvar'})
         self.assertEqual(r.status_code, 302)
-        self.assertTrue(User.objects.get(phone='+5524999995555').check_password(PASSWORD))
+        user = User.objects.get(phone='24999995555')
+        self.assertTrue(user.check_password('20265555'))
+        self.assertNotEqual(user.password, '20265555')
+        self.assertEqual(user.family.responsible_id, user.pk)
 
     def test_profile_only_updates_public_fields(self):
         self.login()
         r = self.client.post(reverse('admin:profile'), {'first_name': 'Nome atualizado', 'phone': '(24) 99999-5678', 'is_superuser': '1', 'attendance': 'yes'})
         self.assertRedirects(r, '/admin/')
         self.alice.refresh_from_db()
-        self.assertEqual(self.alice.phone, '+5524988880001')
+        self.assertEqual(self.alice.phone, '24988880001')
         self.assertFalse(self.alice.is_superuser)
         self.assertEqual(self.alice.attendance, Attendance.PENDING)
         r = self.client.post(reverse('admin:profile'), {'first_name': 'Alice', 'phone': self.bia.phone})
         self.assertRedirects(r, '/admin/')
         self.alice.refresh_from_db()
-        self.assertEqual(self.alice.phone, '+5524988880001')
+        self.assertEqual(self.alice.phone, '24988880001')
         form = self.client.get(reverse('admin:profile')).context['form']
         self.assertTrue(form.fields['phone'].disabled)
 
@@ -187,13 +193,13 @@ class PortalTests(TestCase):
         r = self.client.post(reverse('admin:profile'), {'first_name': 'Organização', 'phone': '(24) 99999-5678'})
         self.assertRedirects(r, '/admin/')
         self.organizer.refresh_from_db()
-        self.assertEqual(self.organizer.phone, '+5524999995678')
+        self.assertEqual(self.organizer.phone, '24999995678')
         r = self.client.post(reverse('admin:profile'), {'first_name': 'Organização', 'phone': self.bia.phone})
         self.assertIn('phone', r.context['form'].errors)
         r = self.client.post(reverse('admin:guests_user_change', args=[self.alice.pk]), {'first_name': self.alice.first_name, 'phone': '(24) 99999-3333', 'attendance': self.alice.attendance, 'is_active': 'on', '_save': 'Salvar'})
         self.assertEqual(r.status_code, 302)
         self.alice.refresh_from_db()
-        self.assertEqual(self.alice.phone, '+5524999993333')
+        self.assertEqual(self.alice.phone, '24999993333')
 
     def test_password_change_and_post_only_logout(self):
         self.login()
@@ -275,9 +281,9 @@ class AdminBootstrapTests(TestCase):
         from unittest.mock import patch
         from ensure_superuser import main
         User.objects.create_user('24988881111', PASSWORD, first_name='Conta comum')
-        with patch.dict(os.environ, {'DJANGO_ADMIN_PHONE': '+5524999999999', 'DJANGO_ADMIN_PASSWORD': 'Initial!AdminPass', 'DJANGO_ADMIN_NAME': 'Organização'}):
+        with patch.dict(os.environ, {'DJANGO_ADMIN_PHONE': '24999999999', 'DJANGO_ADMIN_PASSWORD': 'Initial!AdminPass', 'DJANGO_ADMIN_NAME': 'Organização'}):
             main()
-        admin = User.objects.get(phone='+5524999999999')
+        admin = User.objects.get(phone='24999999999')
         self.assertTrue(admin.is_superuser)
         self.assertTrue(admin.check_password('Initial!AdminPass'))
         with patch.dict(os.environ, {'DJANGO_ADMIN_PASSWORD': 'DoNotReset!Password'}):

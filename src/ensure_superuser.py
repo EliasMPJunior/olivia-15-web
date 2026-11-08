@@ -8,7 +8,7 @@ django.setup()
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from guests.models import normalize_phone
+from guests.models import normalize_phone, phone_variants
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
         if not phone or not password:
             raise RuntimeError('Defina DJANGO_ADMIN_PHONE e DJANGO_ADMIN_PASSWORD para criar a conta administrativa em produção.')
         phone = normalize_phone(phone)
-        if User.objects.filter(phone=phone).exists():
+        if User.objects.filter(phone__in=phone_variants(phone)).exists():
             raise RuntimeError('O telefone administrativo já pertence a uma conta comum. Configure outro telefone; nenhuma conta será promovida automaticamente.')
         User.objects.create_superuser(phone=phone, password=password, first_name=name)
         print(f'Conta administrativa criada para {phone}.')

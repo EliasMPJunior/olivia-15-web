@@ -21,7 +21,7 @@ class AccountAdmin(UserAdmin):
         ('Acesso', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Datas', {'fields': ('date_joined', 'last_login')}),
     )
-    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('first_name', 'phone', 'password1', 'password2')}),)
+    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('first_name', 'phone')}),)
 
     def has_module_permission(self, request):
         return request.user.is_superuser

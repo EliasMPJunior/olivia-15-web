@@ -30,7 +30,7 @@ class ImportGuestsTests(TestCase):
 
     def test_import_maps_principal_to_account_and_members_to_family(self):
         report = self.run_import()
-        responsible = User.objects.get(phone='+5524988881111')
+        responsible = User.objects.get(phone='24988881111')
         self.assertEqual(responsible.first_name, 'Tia Ana Silva')
         self.assertFalse(responsible.has_usable_password())
         self.assertFalse(responsible.is_staff)

@@ -1,6 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
-from .models import Attendance, Guest, User, normalize_phone
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
+from .models import Attendance, Guest, User, normalize_phone, phone_variants
+from .passwords import initial_responsible_password
 
 
 class GuestAdminForm(forms.ModelForm):
@@ -24,19 +25,19 @@ class PhoneLoginForm(AuthenticationForm):
         return normalize_phone(self.cleaned_data['username'])
 
 
-class SignUpForm(UserCreationForm):
+class SignUpForm(forms.ModelForm):
     phone = forms.CharField(label='Telefone do responsável com DDD', help_text='Só o responsável precisa de telefone. Os demais familiares serão adicionados apenas pelo nome.', widget=forms.TextInput(attrs={
         'type': 'tel', 'inputmode': 'tel', 'autocomplete': 'tel', 'placeholder': '(24) 99999-9999',
     }))
     first_name = forms.CharField(label='Nome do responsável da família', max_length=150, widget=forms.TextInput(attrs={'autocomplete': 'name'}))
 
-    class Meta(UserCreationForm.Meta):
+    class Meta:
         model = User
         fields = ('first_name', 'phone')
 
     def clean_phone(self):
         value = normalize_phone(self.cleaned_data['phone'])
-        if User.objects.filter(phone=value).exists():
+        if User.objects.filter(phone__in=phone_variants(value)).exists():
             raise forms.ValidationError('Já existe uma conta com esse telefone. Entre com sua senha.')
         return value
 
@@ -46,8 +47,22 @@ class SignUpForm(UserCreationForm):
             raise forms.ValidationError('Informe seu nome.')
         return name
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(initial_responsible_password(self.cleaned_data['phone']))
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user
+
 
 class AdminUserChangeForm(UserChangeForm):
+    def clean_phone(self):
+        value = normalize_phone(self.cleaned_data['phone'])
+        if User.objects.exclude(pk=self.instance.pk).filter(phone__in=phone_variants(value)).exists():
+            raise forms.ValidationError('Esse telefone já está em uso.')
+        return value
+
     class Meta(UserChangeForm.Meta):
         model = User
         fields = '__all__'
@@ -67,7 +82,7 @@ class ProfileForm(forms.ModelForm):
 
     def clean_phone(self):
         value = normalize_phone(self.cleaned_data['phone'])
-        if User.objects.exclude(pk=self.instance.pk).filter(phone=value).exists():
+        if User.objects.exclude(pk=self.instance.pk).filter(phone__in=phone_variants(value)).exists():
             raise forms.ValidationError('Esse telefone já está em uso.')
         return value
 
@@ -100,7 +115,8 @@ class ActivateAccountForm(forms.Form):
         cleaned = super().clean()
         self.account = None
         if cleaned.get('first_name') and cleaned.get('phone'):
-            account = User.objects.filter(phone=cleaned['phone'], is_active=True, is_superuser=False, is_staff=False, family__isnull=False).first()
+            matches = list(User.objects.filter(phone__in=phone_variants(cleaned['phone']), is_active=True, is_superuser=False, is_staff=False, family__isnull=False)[:2])
+            account = matches[0] if len(matches) == 1 else None
             if account and normalized_registration_name(account.first_name) == normalized_registration_name(cleaned['first_name']):
                 self.account = account
             else:
